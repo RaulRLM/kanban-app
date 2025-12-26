@@ -1,6 +1,6 @@
 /* ============================================
    KANBAN APP - JAVASCRIPT
-   Issue 1 + Issue 2 + Issue 3: CRUD Completo
+   Issue 1 + Issue 2 + Issue 3 + Issue 4
    ============================================ */
 
 /* ============================================
@@ -37,6 +37,13 @@ const CONFIG = {
 // Variable global per mantenir tasques en memòria
 let tasques = []
 let tasqueEnEdicio = null // ID de la tasca en edición
+
+// Filtres actius
+let filtresActius = {
+  text: '',
+  estat: '',
+  prioritat: '',
+}
 
 /* ============================================
    PERSISTÈNCIA - localStorage
@@ -164,6 +171,72 @@ function formatarData(data) {
   } catch (error) {
     return data
   }
+}
+
+/* ============================================
+   FILTRES I CERCA - Issue 4
+   ============================================ */
+
+/**
+ * Obté les tasques filtrades segons els filtres actius
+ * @param {Array} tasquesAFiltrar - Array de tasques
+ * @param {Object} filtres - Object amb les propietats: text, estat, prioritat
+ * @returns {Array} Array de tasques filtrades
+ */
+function getTasquesFiltrades(tasquesAFiltrar, filtres) {
+  return tasquesAFiltrar.filter((tasca) => {
+    // Filtre per text (títol + descripció, case-insensitive)
+    if (filtres.text) {
+      const text = filtres.text.toLowerCase()
+      const coincideixTitol = tasca.titol.toLowerCase().includes(text)
+      const coincideixDescripcio = tasca.descripcio.toLowerCase().includes(text)
+      if (!coincideixTitol && !coincideixDescripcio) {
+        return false
+      }
+    }
+
+    // Filtre per estat
+    if (filtres.estat && tasca.estat !== filtres.estat) {
+      return false
+    }
+
+    // Filtre per prioritat
+    if (filtres.prioritat && tasca.prioritat !== filtres.prioritat) {
+      return false
+    }
+
+    return true
+  })
+}
+
+/**
+ * Actualiza els filtres i renderitza el tauler
+ */
+function aplicarFiltres() {
+  const tasquesFiltrades = getTasquesFiltrades(tasques, filtresActius)
+  renderTauler(tasquesFiltrades)
+  actualitzarEstadistiques(tasquesFiltrades)
+  console.log(`🔍 Filtres aplicats: ${tasquesFiltrades.length} tasques mostrades`)
+}
+
+/**
+ * Neteja tots els filtres
+ */
+function netejarFiltres() {
+  filtresActius = {
+    text: '',
+    estat: '',
+    prioritat: '',
+  }
+
+  // Netejar camps
+  document.getElementById('cercaText').value = ''
+  document.getElementById('filtreEstat').value = ''
+  document.getElementById('filtrePrioritat').value = ''
+
+  // Renderizar todas las tasques
+  aplicarFiltres()
+  console.log('🧹 Filtres netejats')
 }
 
 /* ============================================
@@ -382,12 +455,13 @@ function canviarEstat(id, nuevoEstat) {
 
 /**
  * Actualiza los contadores de estadísticas
+ * @param {Array} tasquesAContar - Array de tasques a contar (por defecto todas)
  */
-function actualitzarEstadistiques() {
-  const total = tasques.length
-  const perFer = tasques.filter((t) => t.estat === CONFIG.ESTADOS.PER_FER).length
-  const enCurs = tasques.filter((t) => t.estat === CONFIG.ESTADOS.EN_CURS).length
-  const fet = tasques.filter((t) => t.estat === CONFIG.ESTADOS.FET).length
+function actualitzarEstadistiques(tasquesAContar = tasques) {
+  const total = tasquesAContar.length
+  const perFer = tasquesAContar.filter((t) => t.estat === CONFIG.ESTADOS.PER_FER).length
+  const enCurs = tasquesAContar.filter((t) => t.estat === CONFIG.ESTADOS.EN_CURS).length
+  const fet = tasquesAContar.filter((t) => t.estat === CONFIG.ESTADOS.FET).length
   const percentatge = total > 0 ? Math.round((fet / total) * 100) : 0
 
   document.getElementById('stat-total').textContent = total
@@ -673,10 +747,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function setupFormulariListeners() {
   const formulari = document.getElementById('formulariTasca')
   if (formulari) {
-    formulari.addEventListener('submit', function (e) {
-      e.preventDefault()
-      console.log('📝 Formulari enviat (funcionalitat pendent per Issue 3)')
-    })
+    formulari.addEventListener('submit', afegirOActualitzarTasca)
   }
 }
 
@@ -687,31 +758,28 @@ function setupFiltresListeners() {
   const btnLimpiar = document.getElementById('btnLimpiarFiltres')
 
   if (cercaText) {
-    cercaText.addEventListener('input', function () {
-      console.log('🔍 Cerca activada (funcionalitat pendent per Issue 4)')
+    cercaText.addEventListener('input', function (e) {
+      filtresActius.text = e.target.value
+      aplicarFiltres()
     })
   }
 
   if (filtreEstat) {
-    filtreEstat.addEventListener('change', function () {
-      console.log(
-        "🔽 Filtre d'estat activat (funcionalitat pendent per Issue 4)",
-      )
+    filtreEstat.addEventListener('change', function (e) {
+      filtresActius.estat = e.target.value
+      aplicarFiltres()
     })
   }
 
   if (filtrePrioritat) {
-    filtrePrioritat.addEventListener('change', function () {
-      console.log(
-        '⚡ Filtre de prioritat activat (funcionalitat pendent per Issue 4)',
-      )
+    filtrePrioritat.addEventListener('change', function (e) {
+      filtresActius.prioritat = e.target.value
+      aplicarFiltres()
     })
   }
 
   if (btnLimpiar) {
-    btnLimpiar.addEventListener('click', function () {
-      console.log('🧹 Neteja de filtres (funcionalitat pendent per Issue 4)')
-    })
+    btnLimpiar.addEventListener('click', netejarFiltres)
   }
 }
 
@@ -720,17 +788,16 @@ function setupFiltresListeners() {
    ============================================ */
 
 console.log('='.repeat(60))
-console.log('🎯 Kanban App - Issue 2: Model de dades i persistència')
+console.log('🎯 Kanban App - Issue 4: Filtres, cerca i estadístiques')
 console.log('='.repeat(60))
-console.log(
-  '✅ Definit model de tasca (id, titol, descripcio, prioritat, dataVenciment, estat, creatEl)',
-)
-console.log('✅ Implementades funcions: carregarTasques(), guardarTasques()')
-console.log('✅ Inicialització amb dades de prova')
-console.log('✅ localStorage amb clau: "tasquesKanban"')
+console.log('✅ Filtre per estat (Per fer / En curs / Fet)')
+console.log('✅ Filtre per prioritat (baixa / mitjana / alta)')
+console.log('✅ Cerca de text (títol + descripció, case-insensitive)')
+console.log('✅ Pipeline de filtratge: getTasquesFiltrades()')
+console.log('✅ Estadístiques actualitzades en temps real')
+console.log('✅ Filtres combinables')
+console.log('✅ Botó per netejar tots els filtres')
 console.log('')
-console.log('Próximas issues:')
-console.log('- Issue 3: CRUD complet i renderització')
-console.log('- Issue 4: Filtres, cerca i estadístiques')
+console.log('Próxima issue:')
 console.log('- Issue 5: Responsive, Git flow i desplegament')
 console.log('='.repeat(60))
