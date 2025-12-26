@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ca">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aplicació Kanban - Gestió de Tasques</title>
+    <link rel="stylesheet" href="css/estils.css" />
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header class="header">
+      <div class="container">
+        <h1>📋 Kanban App</h1>
+        <p class="subtitle">
+          Gestió de tasques amb persistència i estadístiques
+        </p>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="main">
+      <!-- SECTION 1: Formulari de creació/edició de tasques -->
+      <section class="formulari-section">
+        <div class="container">
+          <h2>Afegir Nova Tasca</h2>
+          <form id="formulariTasca" class="form-tasca">
+            <div class="form-group">
+              <label for="titol">Títol *</label>
+              <input
+                type="text"
+                id="titol"
+                name="titol"
+                placeholder="Introdueix el títol de la tasca"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="descripcio">Descripció</label>
+              <textarea
+                id="descripcio"
+                name="descripcio"
+                placeholder="Introdueix una descripció (opcional)"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="prioritat">Prioritat</label>
+                <select id="prioritat" name="prioritat">
+                  <option value="baixa">Baixa</option>
+                  <option value="mitjana" selected>Mitjana</option>
+                  <option value="alta">Alta</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="dataVenciment">Data Límit</label>
+                <input type="date" id="dataVenciment" name="dataVenciment" />
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" id="btnAfegir" class="btn btn-primary">
+                Afegir Tasca
+              </button>
+              <button type="reset" class="btn btn-secondary">
+                Esborrar
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- SECTION 2: Filtres i Cerca -->
+      <section class="filtres-section">
+        <div class="container">
+          <h2>Filtres i Cerca</h2>
+          <div class="filtres-container">
+            <div class="filtre-group">
+              <label for="cercaText">Cercar per text:</label>
+              <input
+                type="text"
+                id="cercaText"
+                placeholder="Cercar al títol o descripció..."
+                class="input-cerca"
+              />
+            </div>
+
+            <div class="filtre-group">
+              <label for="filtreEstat">Estat:</label>
+              <select id="filtreEstat" class="select-filtre">
+                <option value="">Tots els estats</option>
+                <option value="perFer">Per fer</option>
+                <option value="enCurs">En curs</option>
+                <option value="fet">Fet</option>
+              </select>
+            </div>
+
+            <div class="filtre-group">
+              <label for="filtrePrioritat">Prioritat:</label>
+              <select id="filtrePrioritat" class="select-filtre">
+                <option value="">Totes les prioritats</option>
+                <option value="baixa">Baixa</option>
+                <option value="mitjana">Mitjana</option>
+                <option value="alta">Alta</option>
+              </select>
+            </div>
+
+            <button id="btnLimpiarFiltres" class="btn btn-tertiary">
+              Netejar Filtres
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: Tauler Kanban -->
+      <section class="tauler-section">
+        <div class="container">
+          <h2>Tauler de Tasques</h2>
+          <div class="kanban-board">
+            <!-- Columna: Per fer -->
+            <div class="kanban-column" data-estat="perFer">
+              <div class="column-header">
+                <h3>📌 Per fer</h3>
+                <span class="column-count" id="count-perFer">0</span>
+              </div>
+              <div class="tasks-container" id="column-perFer">
+                <!-- Les tasques es renderitzaran aquí -->
+              </div>
+            </div>
+
+            <!-- Columna: En curs -->
+            <div class="kanban-column" data-estat="enCurs">
+              <div class="column-header">
+                <h3>⚙️ En curs</h3>
+                <span class="column-count" id="count-enCurs">0</span>
+              </div>
+              <div class="tasks-container" id="column-enCurs">
+                <!-- Les tasques es renderitzaran aquí -->
+              </div>
+            </div>
+
+            <!-- Columna: Fet -->
+            <div class="kanban-column" data-estat="fet">
+              <div class="column-header">
+                <h3>✅ Fet</h3>
+                <span class="column-count" id="count-fet">0</span>
+              </div>
+              <div class="tasks-container" id="column-fet">
+                <!-- Les tasques es renderitzaran aquí -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ASIDE: Estadístiques -->
+    <aside class="estadistiques-section">
+      <div class="container">
+        <h2>📊 Estadístiques</h2>
+        <div class="estadistiques-container">
+          <div class="stat-card">
+            <h4>Total de Tasques</h4>
+            <p class="stat-value" id="stat-total">0</p>
+          </div>
+
+          <div class="stat-card">
+            <h4>Per fer</h4>
+            <p class="stat-value" id="stat-perFer">0</p>
+          </div>
+
+          <div class="stat-card">
+            <h4>En curs</h4>
+            <p class="stat-value" id="stat-enCurs">0</p>
+          </div>
+
+          <div class="stat-card">
+            <h4>Completades</h4>
+            <p class="stat-value" id="stat-fet">0</p>
+          </div>
+
+          <div class="stat-card">
+            <h4>% Completades</h4>
+            <p class="stat-value" id="stat-percentatge">0%</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="container">
+        <p>&copy; 2025 Kanban App. Pràctica 4 - Gestió de Tasques</p>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/script.js"></script>
+  </body>
+</html>

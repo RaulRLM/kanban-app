@@ -1,0 +1,29 @@
+# Dependències i móduls
+node_modules/
+package-lock.json
+yarn.lock
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Arxius de sistema
+Thumbs.db
+.env
+.env.local
+
+# Compilacions i distribució
+dist/
+build/
+*.log
+
+# Codi temporal
+temp/
+tmp/
+
+# Altres
+.cache/
